@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Path
+from nis import cat
+from fastapi import FastAPI, Path, Response, status, HTTPException
 from fastapi.params import  Body
 from typing import Optional
 from pydantic import BaseModel
+from random import randrange
 
 app = FastAPI()
 
@@ -11,6 +13,8 @@ sales = {
     3: {"item": "item3", "price": 7, "qty": 3},
     4: {"item": "item4", "price": 8, "qty": 4},
 }
+
+categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar", ""]} }
 
 class Sale(BaseModel):
     item: str
@@ -22,9 +26,18 @@ class UpdateSale(BaseModel):
     price: Optional[int]
     qty: Optional[int]
 
+class Category(BaseModel):
+    name: str
+    options: list
+    provider: Optional[str] = None
+
 @app.get("/")
 def home():
     return { "Sales": len(sales) }
+
+@app.get("/sales")
+def sales():
+    return { "Sales": sales }
 
 # Path parameter
 @app.get("/sales/{sale_id}")
@@ -74,8 +87,27 @@ def delete_sale(sale_id: int):
     del sales[sale_id]
     return {"Message": "Sale deleted successfully"}
 
+
+
+@app.get("/categories")
+def all_categories():
+    return {"data": categories}
+
+# Path parameter
+@app.get("/categories/{category_id}")
+def get_category(response: Response, category_id: int = Path(None, description ="The ID of the desired Category")):
+    if category_id not in categories:
+        # response.status_code = status.HTTP_404_NOT_FOUND
+        # return {"message": f"category with id: {category_id} was not found"}
+
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"category with id: {category_id} was not found")
+    
+    return {"category": categories[category_id]}
+
 # create a new item category with its name and product options
-@app.post("/create-category")
-def create_category(payload: dict = Body(...)):
-    print(payload)
-    return {"new_category": f"name {payload['name']} options: {payload['options']}" }
+@app.post("/categories", status_code=status.HTTP_201_CREATED)
+def create_category(category: Category):
+    category_id = randrange(0, 10000000)
+    categories[category_id] = category.dict()
+    return {"data": category}
