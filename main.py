@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Path
+from fastapi.params import  Body
 from typing import Optional
 from pydantic import BaseModel
 
@@ -72,3 +73,9 @@ def delete_sale(sale_id: int):
 
     del sales[sale_id]
     return {"Message": "Sale deleted successfully"}
+
+# create a new item category with its name and product options
+@app.post("/create-category")
+def create_category(payload: dict = Body(...)):
+    print(payload)
+    return {"new_category": f"name {payload['name']} options: {payload['options']}" }
