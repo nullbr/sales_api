@@ -14,7 +14,7 @@ sales = {
     4: {"item": "item4", "price": 8, "qty": 4},
 }
 
-categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar", ""]} }
+categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar"]} }
 
 class Sale(BaseModel):
     item: str
@@ -114,7 +114,7 @@ def get_category(response: Response, category_id: int = Path(None, description =
     return {"category": categories[category_id]}
 
 # deleting category
-# find the index in the array that has required ID
+# find the key in the dictionary that has required ID
 # categories.pop(key)
 @app.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_category(category_id: int):
@@ -124,3 +124,17 @@ def delete_category(category_id: int):
     
     categories.pop(category_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# deleting category
+# find the index in the array that has required ID
+# categories.pop(key)
+@app.put("/categories/{category_id}", status_code=status.HTTP_202_ACCEPTED)
+def update_category(category_id: int, category: Category):
+    if category_id not in categories:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"category with id: {category_id} was not found")
+    
+    categories[category_id] = category.dict()
+
+    return {"message": "category updated"}
