@@ -88,10 +88,18 @@ def delete_sale(sale_id: int):
     return {"Message": "Sale deleted successfully"}
 
 
+'''Working with categories'''
 
 @app.get("/categories")
 def all_categories():
     return {"data": categories}
+
+# create a new item category with its name and product options
+@app.post("/categories", status_code=status.HTTP_201_CREATED)
+def create_category(category: Category):
+    category_id = randrange(0, 10000000)
+    categories[category_id] = category.dict()
+    return {"data": category}
 
 # Path parameter
 @app.get("/categories/{category_id}")
@@ -105,9 +113,14 @@ def get_category(response: Response, category_id: int = Path(None, description =
     
     return {"category": categories[category_id]}
 
-# create a new item category with its name and product options
-@app.post("/categories", status_code=status.HTTP_201_CREATED)
-def create_category(category: Category):
-    category_id = randrange(0, 10000000)
-    categories[category_id] = category.dict()
-    return {"data": category}
+# deleting category
+# find the index in the array that has required ID
+# categories.pop(key)
+@app.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_category(category_id: int):
+    if category_id not in categories:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"category with id: {category_id} was not found")
+    
+    categories.pop(category_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
