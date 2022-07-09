@@ -1,11 +1,28 @@
 from nis import cat
+from sqlite3 import Cursor, connect
 from fastapi import FastAPI, Path, Response, status, HTTPException
 from fastapi.params import  Body
 from typing import Optional
 from pydantic import BaseModel
 from random import randrange
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
 
 app = FastAPI()
+
+# connecting to the database
+while True:
+    try:
+        connection = psycopg2.connect(host='localhost', database='fastapi', user='brunoleite', 
+                                        password='fastapi123', cursor_factory=RealDictCursor)
+        cursor = connection.cursor()
+        print("[INFO] Database connection was successfull!")
+        break
+    except Exception as error:
+        print("Connection to the database failed.")
+        print("[WARN]", error)
+        time.sleep(2)
 
 sales = {
     1: {"item": "item1", "price": 5, "qty": 1},
@@ -19,12 +36,12 @@ categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Pa
 class Sale(BaseModel):
     item: str
     price: int
-    qty: int
+    quantity: int
 
 class UpdateSale(BaseModel):
     item: Optional[str]
     price: Optional[int]
-    qty: Optional[int]
+    quantity: Optional[int]
 
 class Category(BaseModel):
     name: str
@@ -33,16 +50,27 @@ class Category(BaseModel):
 
 @app.get("/")
 def home():
-    return { "Sales": len(sales) }
+    return { "Sales": "API" }
 
 @app.get("/sales")
 def sales():
+    cursor.execute("""SELECT * FROM sales """)
+    sales = cursor.fetchall()
     return { "Sales": sales }
 
 # Path parameter
 @app.get("/sales/{sale_id}")
-def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0, lt=5)):
-    return sales[sale_id]
+def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0)):
+    cursor.execute("""SELECT * FROM sales WHERE id = %s """, (str(sale_id),))
+    sale = cursor.fetchone()
+    if not sale:
+        # response.status_code = status.HTTP_404_NOT_FOUND
+        # return {"message": f"category with id: {category_id} was not found"}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"category with id: {sale_id} was not found")
+    
+
+    return { "Sale": sale}
 
 # Query parameter
 @app.get("/sale-by-price")
@@ -53,13 +81,15 @@ def get_sale(price: Optional[int] = None):
     return {"Sale": "Not found"}
 
 # Post method
-@app.post("/create-sale/{sale_id}")
-def create_sale(sale_id: int, sale: Sale):
-    if sale_id in sales:
-        return {"Error", "Sale already exists"}
+@app.post("/sales")
+def create_sale(sale: Sale):
+    cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) RETURNING * """,
+                    (sale.item, sale.price, sale.quantity))
+    new_sale = cursor.fetchone()
+    
+    connection.commit()
 
-    sales[sale_id] = sale
-    return sales[sale_id]
+    return { "Sale": new_sale}
 
 # Put method
 @app.put("/update-sale/{sale_id}")
