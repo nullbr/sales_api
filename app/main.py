@@ -58,6 +58,14 @@ def sales():
     sales = cursor.fetchall()
     return { "Sales": sales }
 
+# Query parameter
+@app.get("/sales-by-price")
+def get_sale(price: Optional[int] = None):
+    for sale_id in sales:
+        if sales[sale_id]["price"] == price:
+            return sales[sale_id]
+    return {"Sale": "Not found"}
+
 # Path parameter
 @app.get("/sales/{sale_id}")
 def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0)):
@@ -72,13 +80,6 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
 
     return { "Sale": sale}
 
-# Query parameter
-@app.get("/sale-by-price")
-def get_sale(price: Optional[int] = None):
-    for sale_id in sales:
-        if sales[sale_id]["price"] == price:
-            return sales[sale_id]
-    return {"Sale": "Not found"}
 
 # Post method
 @app.post("/sales")
