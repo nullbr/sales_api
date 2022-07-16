@@ -58,12 +58,17 @@ def home():
 
 @app.get("/sqlalchemy")
 def test_sales(db: Session = Depends(get_db)):
-    return {"status": "success"}
+    sales = db.query(models.Sale).all()
+    
+    return {"status": sales}
 
 @app.get("/sales")
-def sales():
-    cursor.execute("""SELECT * FROM sales """)
-    sales = cursor.fetchall()
+def sales(db: Session = Depends(get_db)):
+    # cursor.execute("""SELECT * FROM sales """)
+    # sales = cursor.fetchall()
+    
+    sales = db.query(models.Sale).all()
+    
     return { "Sales": sales }
 
 # Query parameter
