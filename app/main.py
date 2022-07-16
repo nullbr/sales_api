@@ -14,8 +14,7 @@ app = FastAPI()
 # connecting to the database
 while True:
     try:
-        connection = psycopg2.connect(host='localhost', database='fastapi', user='brunoleite', 
-                                        password='fastapi123', cursor_factory=RealDictCursor)
+        connection = psycopg2.connect(host='localhost', database='fastapi', user='brunoleite', password='fastapi123', cursor_factory=RealDictCursor)
         cursor = connection.cursor()
         print("[INFO] Database connection was successfull!")
         break
@@ -74,8 +73,7 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
     if not sale:
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {"message": f"category with id: {category_id} was not found"}
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"category with id: {sale_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} was not found")
     
 
     return { "Sale": sale}
@@ -84,8 +82,7 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
 # Post method
 @app.post("/sales")
 def create_sale(sale: Sale):
-    cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) RETURNING * """,
-                    (sale.item, sale.price, sale.quantity))
+    cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) RETURNING * """, (sale.item, sale.price, sale.quantity))
     new_sale = cursor.fetchone()
     
     connection.commit()
@@ -93,30 +90,31 @@ def create_sale(sale: Sale):
     return { "Sale": new_sale}
 
 # Put method
-@app.put("/update-sale/{sale_id}")
-def update_sale(sale_id: int, sale: UpdateSale):
-    if sale_id not in sales:
-        return {"Error", "Sale not found"}
-
-    if sale.item != None:
-        sales[sale_id].item = sale.item
-
-    if sale.price != None:
-        sales[sale_id].price = sale.price
+@app.put("/update-sale/{sale_id}", status_code=status.HTTP_200_OK)
+def update_sale(sale_id: int, sale: Sale):
     
-    if sale.price != None:
-        sales[sale_id].qty = sale.qty
+    cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
+    updated_sale = cursor.fetchone()
+    connection.commit()
 
-    return sales[sale_id]
+    if not updated_sale:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
+
+    return {"Updated Sale": updated_sale}
 
 # Delete method
-@app.delete("/delete-sale/{sale_id}")
+@app.delete("/delete-sale/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_sale(sale_id: int):
-    if sale_id not in sales:
-        return {"Error", "Sale not found"}
+    cursor.execute("""DELETE FROM sales WHERE id = %s RETURNING *""", (str(sale_id),))
+    deleted_sale = cursor.fetchone()
+    connection.commit()
 
-    del sales[sale_id]
-    return {"Message": "Sale deleted successfully"}
+    if not deleted_sale:
+        # response.status_code = status.HTTP_404_NOT_FOUND
+        # return {"message": f"category with id: {category_id} was not found"}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
+    
+    return { "Deleted Sale": deleted_sale }
 
 
 '''Working with categories'''
@@ -139,8 +137,7 @@ def get_category(response: Response, category_id: int = Path(None, description =
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {"message": f"category with id: {category_id} was not found"}
 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"category with id: {category_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"category with id: {category_id} was not found")
     
     return {"category": categories[category_id]}
 
@@ -150,8 +147,7 @@ def get_category(response: Response, category_id: int = Path(None, description =
 @app.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_category(category_id: int):
     if category_id not in categories:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"category with id: {category_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"category with id: {category_id} was not found")
     
     categories.pop(category_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -163,8 +159,7 @@ def delete_category(category_id: int):
 @app.put("/categories/{category_id}", status_code=status.HTTP_202_ACCEPTED)
 def update_category(category_id: int, category: Category):
     if category_id not in categories:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"category with id: {category_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"category with id: {category_id} was not found")
     
     categories[category_id] = category.dict()
 
