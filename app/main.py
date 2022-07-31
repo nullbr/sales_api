@@ -28,24 +28,13 @@ while True:
         print("[WARN]", error)
         time.sleep(2)
 
-sales = {
-    1: {"item": "item1", "price": 5, "qty": 1},
-    2: {"item": "item2", "price": 6, "qty": 2},
-    3: {"item": "item3", "price": 7, "qty": 3},
-    4: {"item": "item4", "price": 8, "qty": 4},
-}
-
 categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar"]} }
 
 class Sale(BaseModel):
-    item: str
-    price: int
-    quantity: int
-
-class UpdateSale(BaseModel):
-    item: Optional[str]
-    price: Optional[int]
-    quantity: Optional[int]
+    items: str
+    total: int
+    payment_method: str
+    credit: bool
 
 class Category(BaseModel):
     name: str
@@ -60,9 +49,9 @@ def home():
 def test_sales(db: Session = Depends(get_db)):
     sales = db.query(models.Sale).all()
     
-    return {"status": sales}
+    return {"sales": sales}
 
-@app.get("/sales")
+@app.get("/sales", status_code=status.HTTP_200_OK)
 def sales(db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM sales """)
     # sales = cursor.fetchall()
@@ -71,19 +60,14 @@ def sales(db: Session = Depends(get_db)):
     
     return { "Sales": sales }
 
-# Query parameter
-@app.get("/sales-by-price")
-def get_sale(price: Optional[int] = None):
-    for sale_id in sales:
-        if sales[sale_id]["price"] == price:
-            return sales[sale_id]
-    return {"Sale": "Not found"}
-
 # Path parameter
-@app.get("/sales/{sale_id}")
-def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0)):
-    cursor.execute("""SELECT * FROM sales WHERE id = %s """, (str(sale_id),))
-    sale = cursor.fetchone()
+@app.get("/sales/{sale_id}", status_code=status.HTTP_200_OK)
+def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0), db: Session = Depends(get_db)):
+    # cursor.execute("""SELECT * FROM sales WHERE id = %s """, (str(sale_id),))
+    # sale = cursor.fetchone()
+
+    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
+
     if not sale:
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {"message": f"category with id: {category_id} was not found"}
@@ -92,14 +76,17 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
 
     return { "Sale": sale}
 
-
 # Post method
-@app.post("/sales")
-def create_sale(sale: Sale):
-    cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) RETURNING * """, (sale.item, sale.price, sale.quantity))
-    new_sale = cursor.fetchone()
+@app.post("/sales", status_code=status.HTTP_201_CREATED)
+def create_sale(sale: Sale, db: Session = Depends(get_db)):
+    # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
+    # new_sale = cursor.fetchone()
     
-    connection.commit()
+    # connection.commit()
+    new_sale = models.Sale(**sale.dict())
+    db.add(new_sale)
+    db.commit()
+    db.refresh(new_sale)
 
     return { "Sale": new_sale}
 
