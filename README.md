@@ -13,12 +13,12 @@ Working with FastAPI to practice creating an API with python.
 Set up virtual environment and install fastapi:
 
 ```
-$ python -m ensurepip
-$ python -m pip install --user --upgrade pip
-$ python -m pip install --user virtualenv
-$ python -m venv venv
+$ python3 -m ensurepip
+$ python3 -m pip install --user --upgrade pip
+$ python3 -m pip install --user virtualenv
+$ python3 -m venv venv
 $ source venv/bin/activate
-$ python -m pip install "fastapi[all]"
+$ pip install "fastapi[all]"
 ```
 
 
@@ -26,6 +26,12 @@ Setting up the database:
 
 First we need to install PostgreSQL in the machine and create a database for the FastAPI application.
 ```
-$ python -m pip install psycopg2-binary
-$ python -m pip install sqlalchemy
+$ pip install psycopg2-binary
+$ pip install sqlalchemy
+```
+
+Run the app from root directory:
+
+```
+$ uvicorn app.main:app --reload
 ```

@@ -12,4 +12,4 @@ class Sale(Base):
     total = Column(Integer, nullable=False)
     payment_method = Column(String, nullable=False)
     credit = Column(Boolean, server_default='False', nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text('now()'))
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
