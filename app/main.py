@@ -8,6 +8,7 @@ from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from requests import delete
 from sqlalchemy.orm import Session
 from . import models
 from .database import engine, get_db
@@ -32,7 +33,7 @@ categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Pa
 
 class Sale(BaseModel):
     items: str
-    total: int
+    total: float
     payment_method: str
     credit: bool
 
@@ -80,9 +81,9 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
 @app.post("/sales", status_code=status.HTTP_201_CREATED)
 def create_sale(sale: Sale, db: Session = Depends(get_db)):
     # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
-    # new_sale = cursor.fetchone()
-    
+    # new_sale = cursor.fetchone()  
     # connection.commit()
+
     new_sale = models.Sale(**sale.dict())
     db.add(new_sale)
     db.commit()
@@ -91,31 +92,40 @@ def create_sale(sale: Sale, db: Session = Depends(get_db)):
     return { "Sale": new_sale}
 
 # Put method
-@app.put("/update-sale/{sale_id}", status_code=status.HTTP_200_OK)
-def update_sale(sale_id: int, sale: Sale):
-    
-    cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
-    updated_sale = cursor.fetchone()
-    connection.commit()
+@app.put("/sales/{sale_id}", status_code=status.HTTP_200_OK)
+def update_sale(sale_id: int, sale: Sale, db: Session = Depends(get_db)):
+    # cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
+    # updated_sale = cursor.fetchone()
+    # connection.commit()
 
-    if not updated_sale:
+    sale_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+
+    if not sale_query.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
 
-    return {"Updated Sale": updated_sale}
+    sale_query.update(sale.dict())
+    db.commit()
+
+    return {"Updated Sale": sale_query.first()}
 
 # Delete method
-@app.delete("/delete-sale/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_sale(sale_id: int):
-    cursor.execute("""DELETE FROM sales WHERE id = %s RETURNING *""", (str(sale_id),))
-    deleted_sale = cursor.fetchone()
-    connection.commit()
+@app.delete("/sales/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_sale(sale_id: int, db: Session = Depends(get_db)):
+    # cursor.execute("""DELETE FROM sales WHERE id = %s RETURNING *""", (str(sale_id),))
+    # deleted_sale = cursor.fetchone()
+    # connection.commit()
 
-    if not deleted_sale:
+    sale_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+
+    if not sale_query.first():
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {"message": f"category with id: {category_id} was not found"}
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
     
-    return { "Deleted Sale": deleted_sale }
+    sale_query.delete(synchronize_session=False)
+    db.commit()
+    
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 '''Working with categories'''
