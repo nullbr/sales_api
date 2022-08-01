@@ -2,7 +2,6 @@ from nis import cat
 from sqlite3 import Cursor, connect
 from fastapi import FastAPI, Path, Response, status, HTTPException, Depends
 from fastapi.params import  Body
-from typing import Optional
 from pydantic import BaseModel
 from random import randrange
 import psycopg2
@@ -10,7 +9,7 @@ from psycopg2.extras import RealDictCursor
 import time
 from requests import delete
 from sqlalchemy.orm import Session
-from . import models
+from . import models, schemas
 from .database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
@@ -29,28 +28,10 @@ while True:
         print("[WARN]", error)
         time.sleep(2)
 
-categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar"]} }
-
-class Sale(BaseModel):
-    items: str
-    total: float
-    payment_method: str
-    credit: bool
-
-class Category(BaseModel):
-    name: str
-    options: list
-    provider: Optional[str] = None
 
 @app.get("/")
 def home():
     return { "Sales": "API" }
-
-@app.get("/sqlalchemy")
-def test_sales(db: Session = Depends(get_db)):
-    sales = db.query(models.Sale).all()
-    
-    return {"sales": sales}
 
 @app.get("/sales", status_code=status.HTTP_200_OK)
 def sales(db: Session = Depends(get_db)):
@@ -79,7 +60,7 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
 
 # Post method
 @app.post("/sales", status_code=status.HTTP_201_CREATED)
-def create_sale(sale: Sale, db: Session = Depends(get_db)):
+def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db)):
     # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
     # new_sale = cursor.fetchone()  
     # connection.commit()
@@ -93,7 +74,7 @@ def create_sale(sale: Sale, db: Session = Depends(get_db)):
 
 # Put method
 @app.put("/sales/{sale_id}", status_code=status.HTTP_200_OK)
-def update_sale(sale_id: int, sale: Sale, db: Session = Depends(get_db)):
+def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(get_db)):
     # cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
     # updated_sale = cursor.fetchone()
     # connection.commit()
@@ -130,13 +111,15 @@ def delete_sale(sale_id: int, db: Session = Depends(get_db)):
 
 '''Working with categories'''
 
+categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar"]} }
+
 @app.get("/categories")
 def all_categories():
     return {"data": categories}
 
 # create a new item category with its name and product options
 @app.post("/categories", status_code=status.HTTP_201_CREATED)
-def create_category(category: Category):
+def create_category(category: schemas.Category):
     category_id = randrange(0, 10000000)
     categories[category_id] = category.dict()
     return {"data": category}
@@ -168,7 +151,7 @@ def delete_category(category_id: int):
 # find the index in the array that has required ID
 # categories.pop(key)
 @app.put("/categories/{category_id}", status_code=status.HTTP_202_ACCEPTED)
-def update_category(category_id: int, category: Category):
+def update_category(category_id: int, category: schemas.Category):
     if category_id not in categories:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"category with id: {category_id} was not found")
     
