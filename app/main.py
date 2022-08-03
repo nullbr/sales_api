@@ -1,6 +1,7 @@
 from nis import cat
 from sqlite3 import Cursor, connect
 from typing import List
+from urllib import response
 from fastapi import FastAPI, Path, Response, status, HTTPException, Depends
 from fastapi.params import  Body
 from pydantic import BaseModel
@@ -124,8 +125,14 @@ def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
 
     return new_user
 
-@get("/users/{user_id}")
-def get_user:
+@app.get("/users/{user_id}", response_model=schemas.User)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {user_id} does not exist")
+
+    return user
 
 '''Working with categories'''
 
