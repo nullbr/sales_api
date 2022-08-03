@@ -110,6 +110,18 @@ def delete_sale(sale_id: int, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+'''Working with Users'''
+
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
+def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+
+
 '''Working with categories'''
 
 categories = { 1: {"name": "Cheeses", "options": ["Provolone", "Mozzarella", "Parmesan", "Cheddar"]} }
