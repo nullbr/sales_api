@@ -1,6 +1,5 @@
 from nis import cat
 from sqlite3 import Cursor, connect
-from typing import List
 from urllib import response
 from fastapi import FastAPI, Path, Response, status, HTTPException, Depends
 from fastapi.params import  Body
@@ -13,6 +12,7 @@ from requests import delete
 from sqlalchemy.orm import Session
 from . import models, schemas, utils
 from .database import engine, get_db
+from .routers import sale, user
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -30,109 +30,14 @@ while True:
         print("[WARN]", error)
         time.sleep(2)
 
+app.include_router(sale.router)
+app.include_router(user.router)
+
 
 @app.get("/")
 def home():
     return { "Sales": "API" }
 
-@app.get("/sales", status_code=status.HTTP_200_OK, response_model=List[schemas.Sale])
-def sales(db: Session = Depends(get_db)):
-    # cursor.execute("""SELECT * FROM sales """)
-    # sales = cursor.fetchall()
-    
-    sales = db.query(models.Sale).all()
-    
-    return sales
-
-# Path parameter
-@app.get("/sales/{sale_id}", status_code=status.HTTP_200_OK, response_model=schemas.Sale)
-def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0), db: Session = Depends(get_db)):
-    # cursor.execute("""SELECT * FROM sales WHERE id = %s """, (str(sale_id),))
-    # sale = cursor.fetchone()
-
-    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
-
-    if not sale:
-        # response.status_code = status.HTTP_404_NOT_FOUND
-        # return {"message": f"category with id: {category_id} was not found"}
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} was not found")
-    
-
-    return sale
-
-# Post method
-@app.post("/sales", status_code=status.HTTP_201_CREATED, response_model=schemas.Sale)
-def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db)):
-    # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
-    # new_sale = cursor.fetchone()  
-    # connection.commit()
-
-    new_sale = models.Sale(**sale.dict())
-    db.add(new_sale)
-    db.commit()
-    db.refresh(new_sale)
-
-    return new_sale
-
-# Put method
-@app.put("/sales/{sale_id}", status_code=status.HTTP_200_OK, response_model=schemas.Sale)
-def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(get_db)):
-    # cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
-    # updated_sale = cursor.fetchone()
-    # connection.commit()
-
-    sale_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
-
-    if not sale_query.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
-
-    sale_query.update(sale.dict())
-    db.commit()
-
-    return sale_query.first()
-
-# Delete method
-@app.delete("/sales/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_sale(sale_id: int, db: Session = Depends(get_db)):
-    # cursor.execute("""DELETE FROM sales WHERE id = %s RETURNING *""", (str(sale_id),))
-    # deleted_sale = cursor.fetchone()
-    # connection.commit()
-
-    sale_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
-
-    if not sale_query.first():
-        # response.status_code = status.HTTP_404_NOT_FOUND
-        # return {"message": f"category with id: {category_id} was not found"}
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
-    
-    sale_query.delete(synchronize_session=False)
-    db.commit()
-    
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-'''Working with Users'''
-
-@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
-def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
-    # hash password - user.password
-    user.password = utils.hash_pwd(user.password)
-    
-    new_user = models.User(**user.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
-
-@app.get("/users/{user_id}", response_model=schemas.User)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {user_id} does not exist")
-
-    return user
 
 '''Working with categories'''
 
