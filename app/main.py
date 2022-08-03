@@ -1,5 +1,6 @@
 from nis import cat
 from sqlite3 import Cursor, connect
+from typing import List
 from fastapi import FastAPI, Path, Response, status, HTTPException, Depends
 from fastapi.params import  Body
 from pydantic import BaseModel
@@ -33,17 +34,17 @@ while True:
 def home():
     return { "Sales": "API" }
 
-@app.get("/sales", status_code=status.HTTP_200_OK)
+@app.get("/sales", status_code=status.HTTP_200_OK, response_model=List[schemas.Sale])
 def sales(db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM sales """)
     # sales = cursor.fetchall()
     
     sales = db.query(models.Sale).all()
     
-    return { "Sales": sales }
+    return sales
 
 # Path parameter
-@app.get("/sales/{sale_id}", status_code=status.HTTP_200_OK)
+@app.get("/sales/{sale_id}", status_code=status.HTTP_200_OK, response_model=schemas.Sale)
 def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0), db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM sales WHERE id = %s """, (str(sale_id),))
     # sale = cursor.fetchone()
@@ -56,10 +57,10 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} was not found")
     
 
-    return { "Sale": sale}
+    return sale
 
 # Post method
-@app.post("/sales", status_code=status.HTTP_201_CREATED)
+@app.post("/sales", status_code=status.HTTP_201_CREATED, response_model=schemas.Sale)
 def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db)):
     # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
     # new_sale = cursor.fetchone()  
@@ -70,10 +71,10 @@ def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_sale)
 
-    return { "Sale": new_sale}
+    return new_sale
 
 # Put method
-@app.put("/sales/{sale_id}", status_code=status.HTTP_200_OK)
+@app.put("/sales/{sale_id}", status_code=status.HTTP_200_OK, response_model=schemas.Sale)
 def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(get_db)):
     # cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
     # updated_sale = cursor.fetchone()
@@ -87,7 +88,7 @@ def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(ge
     sale_query.update(sale.dict())
     db.commit()
 
-    return {"Updated Sale": sale_query.first()}
+    return sale_query.first()
 
 # Delete method
 @app.delete("/sales/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
