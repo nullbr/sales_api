@@ -30,6 +30,11 @@ $ pip install psycopg2-binary
 $ pip install sqlalchemy
 ```
 
+Password Encryption:
+```
+$ pip install passlib[bycrypt]
+```
+
 Run the app from root directory:
 
 ```

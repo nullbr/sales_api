@@ -10,7 +10,7 @@ from psycopg2.extras import RealDictCursor
 import time
 from requests import delete
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models, schemas, utils
 from .database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
@@ -114,6 +114,9 @@ def delete_sale(sale_id: int, db: Session = Depends(get_db)):
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
 def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
+    # hash password - user.password
+    user.password = utils.hash_pwd(user.password)
+    
     new_user = models.User(**user.dict())
     db.add(new_user)
     db.commit()
@@ -121,6 +124,8 @@ def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
 
     return new_user
 
+@get("/users/{user_id}")
+def get_user:
 
 '''Working with categories'''
 
