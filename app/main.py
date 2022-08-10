@@ -12,7 +12,7 @@ from requests import delete
 from sqlalchemy.orm import Session
 from . import models, schemas, utils
 from .database import engine, get_db
-from .routers import sale, user
+from .routers import sale, user, auth
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -32,6 +32,7 @@ while True:
 
 app.include_router(sale.router)
 app.include_router(user.router)
+app.include_router(auth.router)
 
 
 @app.get("/")

@@ -10,6 +10,9 @@ router = APIRouter(
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
 def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
+    if db.query(models.User).filter(models.User.email == user.email).first():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Email already in use")
+    
     # hash password - user.password
     user.password = utils.hash_pwd(user.password)
     

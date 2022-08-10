@@ -1,4 +1,5 @@
 from datetime import datetime
+import email
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
@@ -41,3 +42,7 @@ class User(BaseModel):
     email: str
     class Config:
         orm_mode = True
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
