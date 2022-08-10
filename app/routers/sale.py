@@ -4,7 +4,10 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from typing import List
 
-router = APIRouter(prefix="/sales")
+router = APIRouter(
+    prefix="/sales",
+    tags=['Sales']
+)
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.Sale])
