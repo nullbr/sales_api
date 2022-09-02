@@ -19,16 +19,16 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # connecting to the database
-while True:
-    try:
-        connection = psycopg2.connect(host='localhost', database='fastapi', user='nullbr', password='bmw123', cursor_factory=RealDictCursor)
-        cursor = connection.cursor()
-        print("[INFO] Database connection was successfull!")
-        break
-    except Exception as error:
-        print("Connection to the database failed.")
-        print("[WARN]", error)
-        time.sleep(2)
+# while True:
+#     try:
+#         connection = psycopg2.connect(host='localhost', database='fastapi', user='nullbr', password='bmw123', cursor_factory=RealDictCursor)
+#         cursor = connection.cursor()
+#         print("[INFO] Database connection was successfull!")
+#         break
+#     except Exception as error:
+#         print("Connection to the database failed.")
+#         print("[WARN]", error)
+#         time.sleep(2)
 
 app.include_router(sale.router)
 app.include_router(user.router)

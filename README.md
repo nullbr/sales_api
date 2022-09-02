@@ -13,9 +13,10 @@ Working with FastAPI to practice creating an API with python.
 Set up virtual environment and install fastapi:
 
 ```
-$ python3 -m ensurepip
+$ sudo apt install python3-pip
 $ python3 -m pip install --user --upgrade pip
 $ python3 -m pip install --user virtualenv
+$ sudo apt-get install python3-venv
 $ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install "fastapi[all]"
@@ -33,6 +34,11 @@ $ pip install sqlalchemy
 Password Encryption:
 ```
 $ pip install passlib[bycrypt]
+```
+
+Auth token generation:
+```
+$ pip install "python-jose[cryptography]"
 ```
 
 Run the app from root directory:
