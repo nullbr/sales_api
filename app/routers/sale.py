@@ -1,4 +1,4 @@
-from .. import models, schemas, utils
+from .. import models, schemas, utils, oauth2
 from fastapi import FastAPI, Path, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -37,11 +37,13 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
 
 # Post method
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Sale)
-def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db)):
+def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
     # new_sale = cursor.fetchone()  
     # connection.commit()
 
+    print(user_id)
+    
     new_sale = models.Sale(**sale.dict())
     db.add(new_sale)
     db.commit()
