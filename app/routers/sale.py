@@ -11,7 +11,7 @@ router = APIRouter(
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.Sale])
-def sales(db: Session = Depends(get_db)):
+def sales(db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""SELECT * FROM sales """)
     # sales = cursor.fetchall()
     
@@ -41,8 +41,6 @@ def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db), user_id
     # cursor.execute("""INSERT INTO sales (item, price, quantity) VALUES (%s, %s, %s) # RETURNING * """, (sale.item, sale.price, sale.quantity))
     # new_sale = cursor.fetchone()  
     # connection.commit()
-
-    print(user_id)
     
     new_sale = models.Sale(**sale.dict())
     db.add(new_sale)
@@ -53,7 +51,7 @@ def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db), user_id
 
 # Put method
 @router.put("/{sale_id}", status_code=status.HTTP_200_OK, response_model=schemas.Sale)
-def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(get_db)):
+def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""UPDATE sales SET item = %s, price = %s, quantity = %s WHERE id = %s RETURNING *""", (sale.item, sale.price, sale.quantity, sale_id))
     # updated_sale = cursor.fetchone()
     # connection.commit()
@@ -70,7 +68,7 @@ def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(ge
 
 # Delete method
 @router.delete("/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_sale(sale_id: int, db: Session = Depends(get_db)):
+def delete_sale(sale_id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""DELETE FROM sales WHERE id = %s RETURNING *""", (str(sale_id),))
     # deleted_sale = cursor.fetchone()
     # connection.commit()
