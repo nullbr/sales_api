@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Float, Integer, String, Boolean
+from typing import Collection
+from sqlalchemy import Column, Float, Integer, String, Boolean, ForeignKey
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 
@@ -13,6 +14,8 @@ class Sale(Base):
     payment_method = Column(String, nullable=False)
     credit = Column(Boolean, server_default='False', nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 class User(Base):
     __tablename__= "users"

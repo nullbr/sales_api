@@ -42,7 +42,7 @@ def create_sale(sale: schemas.CreateSale, db: Session = Depends(get_db), current
     # new_sale = cursor.fetchone()  
     # connection.commit()
     
-    new_sale = models.Sale(**sale.dict())
+    new_sale = models.Sale(user_id=current_user.id, **sale.dict())
     db.add(new_sale)
     db.commit()
     db.refresh(new_sale)
@@ -57,14 +57,18 @@ def update_sale(sale_id: int, sale: schemas.UpdateSale, db: Session = Depends(ge
     # connection.commit()
 
     sale_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+    selected_sale = sale_query.first()
 
-    if not sale_query.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
+    if not selected_sale:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Sale with id: {sale_id} does not exist")
+    
+    if selected_sale.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No allowed to update sale with id {sale_id}")
 
-    sale_query.update(sale.dict())
+    sale_query.update(sale.dict(), synchronize_session=False)
     db.commit()
 
-    return sale_query.first()
+    return selected_sale
 
 # Delete method
 @router.delete("/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -74,11 +78,15 @@ def delete_sale(sale_id: int, db: Session = Depends(get_db), current_user: int =
     # connection.commit()
 
     sale_query = db.query(models.Sale).filter(models.Sale.id == sale_id)
+    selected_sale = sale_query.first()
 
-    if not sale_query.first():
+    if not selected_sale:
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {"message": f"category with id: {category_id} was not found"}
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} does not exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Sale with id: {sale_id} does not exist")
+
+    if selected_sale.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No allowed to delete sale with id {sale_id}")
     
     sale_query.delete(synchronize_session=False)
     db.commit()
