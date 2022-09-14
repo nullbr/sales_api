@@ -32,7 +32,6 @@ def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale"
         # return {"message": f"category with id: {category_id} was not found"}
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"sale with id: {sale_id} was not found")
     
-
     return sale
 
 # Post method
