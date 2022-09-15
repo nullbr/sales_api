@@ -2,7 +2,7 @@ from .. import models, schemas, utils, oauth2
 from fastapi import FastAPI, Path, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from ..database import get_db
-from typing import List
+from typing import List, Optional
 
 router = APIRouter(
     prefix="/sales",
@@ -11,11 +11,11 @@ router = APIRouter(
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.Sale])
-def sales(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+def sales(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, offset: int = 0, search: Optional[str] = ""):
     # cursor.execute("""SELECT * FROM sales """)
     # sales = cursor.fetchall()
     
-    sales = db.query(models.Sale).all()
+    sales = db.query(models.Sale).filter(models.Sale.items.contains(search)).limit(limit).offset(offset).all()
     
     return sales
 
