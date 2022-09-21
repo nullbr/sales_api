@@ -17,6 +17,7 @@ class User(BaseModel):
     class Config:
         orm_mode = True
 
+'''Auth'''
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
@@ -28,6 +29,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     id: Optional[str] = None
 
+'''Sales'''
 class SaleBase(BaseModel):
     items: str
     total: float
@@ -47,7 +49,23 @@ class Sale(SaleBase):
     class Config:
         orm_mode = True
 
-class Category(BaseModel):
+'''Products'''
+class ProductBase(BaseModel):
     name: str
-    options: list
-    provider: Optional[str] = None
+    description: str
+    price: float
+    on_sale_price: float
+    on_sale: bool = False
+
+class CreateProduct(ProductBase):
+    pass
+
+class UpdateProduct(ProductBase):
+    pass
+
+class Product(ProductBase):
+    id: int
+    created_at: datetime
+    user: User
+    class Config:
+        orm_mode = True
