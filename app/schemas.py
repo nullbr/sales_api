@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, conint
 from typing import Optional
 
 '''Users'''
@@ -54,6 +54,7 @@ class ProductBase(BaseModel):
     name: str
     description: str
     price: float
+    inventory: int
     on_sale_price: float
     on_sale: bool = False
 
@@ -69,3 +70,9 @@ class Product(ProductBase):
     user: User
     class Config:
         orm_mode = True
+
+'''Products / Sales join'''
+class ProductSold(BaseModel):
+    post_id: int
+    sale_id: int
+    quantity: conint(ge=0)

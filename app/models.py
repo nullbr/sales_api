@@ -36,10 +36,11 @@ class Product(Base):
     name = Column(String, nullable=False, unique=True)
     description = Column(String)
     price = Column(Float, nullable=False)
+    inventory = Column(Integer, nullable=False)
     on_sale_price = Column(Float, server_default='0.0', nullable=False)
     on_sale = Column(Boolean, server_default='False', nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
-
+    
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     user = relationship("User")
@@ -49,3 +50,4 @@ class ProductSold(Base):
 
     product_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     sale_id = Column(Integer, ForeignKey("sales.id", ondelete="CASCADE"), primary_key=True)
+    quantity = Column(Integer, nullable=False)
