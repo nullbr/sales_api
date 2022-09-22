@@ -1,3 +1,4 @@
+from itertools import product
 from typing import Collection
 from sqlalchemy import Column, Float, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
@@ -42,3 +43,9 @@ class Product(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     user = relationship("User")
+
+class ProductSold(Base):
+    __tablename__ = "products_sold"
+
+    product_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    sale_id = Column(Integer, ForeignKey("sales.id", ondelete="CASCADE"), primary_key=True)
