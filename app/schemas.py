@@ -49,6 +49,12 @@ class Sale(SaleBase):
     class Config:
         orm_mode = True
 
+class SaleOut(SaleBase):
+    Sale: Sale
+    products: int
+    class Config:
+        orm_mode = True
+
 '''Products'''
 class ProductBase(BaseModel):
     name: str

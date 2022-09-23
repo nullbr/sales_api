@@ -30,7 +30,7 @@ def sold(product_sold: schemas.ProductSold, db: Session = Depends(get_db), curre
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Product {product_sold.product_id} is already in Sale {product_sold.sale_id}.")
     
     
-    if product and product.inventory < product_sold.quantity:
+    if product.inventory < product_sold.quantity:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
         detail=f"Quantity in inventory is {product.inventory}. Cannot puchase more items than what is available.")
 
