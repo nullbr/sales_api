@@ -46,8 +46,8 @@ class Product(Base):
     user = relationship("User")
 
 class ProductSold(Base):
-    __tablename__ = "products_sold"
+    __tablename__ = "product_sold"
 
-    product_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), primary_key=True)
     sale_id = Column(Integer, ForeignKey("sales.id", ondelete="CASCADE"), primary_key=True)
     quantity = Column(Integer, nullable=False)

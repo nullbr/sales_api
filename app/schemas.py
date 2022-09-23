@@ -73,6 +73,6 @@ class Product(ProductBase):
 
 '''Products / Sales join'''
 class ProductSold(BaseModel):
-    post_id: int
+    product_id: int
     sale_id: int
-    quantity: conint(ge=0)
+    quantity: conint(ge=1)
