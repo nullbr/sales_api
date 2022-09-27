@@ -46,3 +46,9 @@ Run the app from root directory:
 ```
 $ uvicorn app.main:app --reload
 ```
+
+### Load API
+```
+source venv/bin/activate
+uvicorn app.main:app --reload
+```

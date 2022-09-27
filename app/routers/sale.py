@@ -25,12 +25,14 @@ def sales(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_
     return sales
 
 # Path parameter
-@router.get("/{sale_id}", status_code=status.HTTP_200_OK, response_model=schemas.Sale)
+@router.get("/{sale_id}", status_code=status.HTTP_200_OK)
 def get_sale(sale_id: int = Path(None, description ="The ID of the desired Sale", gt=0), db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # cursor.execute("""SELECT * FROM sales WHERE id = %s """, (str(sale_id),))
     # sale = cursor.fetchone()
 
-    sale = db.query(models.Sale).filter(models.Sale.id == sale_id).first()
+    sale = db.query(models.Sale, func.count(models.ProductSold.sale_id).label('products'))\
+             .join(models.ProductSold, models.ProductSold.sale_id == models.Sale.id, isouter=True)\
+             .group_by(models.Sale.id).filter(models.Sale.id == sale_id).first()
 
     if not sale:
         # response.status_code = status.HTTP_404_NOT_FOUND
