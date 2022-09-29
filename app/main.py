@@ -1,10 +1,10 @@
 from itertools import product
 from fastapi import FastAPI
 from . import models
-from .database import engine
 from .routers import sale, user, auth, product, product_sold
 
-models.Base.metadata.create_all(bind=engine)
+# from .database import engine
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
