@@ -41,6 +41,13 @@ Auth token generation:
 $ pip install "python-jose[cryptography]"
 ```
 
+Database Migrations:
+
+```
+$ pip install alembic
+```
+
+
 Run the app from root directory:
 
 ```
