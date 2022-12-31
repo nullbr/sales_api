@@ -47,6 +47,11 @@ Database Migrations:
 $ pip install alembic
 ```
 
+Process manager to reload app automatically
+```
+$ pip install gunicorn httptools uvloop
+```
+
 
 Run the app from root directory:
 
@@ -58,4 +63,9 @@ $ uvicorn app.main:app --reload
 ```
 source venv/bin/activate
 uvicorn app.main:app --reload
+```
+
+Run app in production
+```
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
 ```
