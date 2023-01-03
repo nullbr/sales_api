@@ -8,6 +8,13 @@ Working with FastAPI to practice creating an API with python.
 - pip ~> 21.3
 - postgresql ~> 13
 
+### Production set up
+Production machine is ubuntu 18.04 on DigitalOcean
+domain used is bruno.buzz
+gunicorn to handle process managment
+nginx for ssl
+certbot for HTTPS
+
 ### Installation
 
 Set up virtual environment and install fastapi:
