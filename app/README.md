@@ -1,6 +1,9 @@
 ## Sales API
 
 Working with FastAPI to practice creating an API with python.
+Deployed to ubuntu server in DigitalOcean.
+Fully Dockerized application.
+Using TestClient for automated testing.
 
 ### Dependencies
 
@@ -59,6 +62,10 @@ Process manager to reload app automatically
 $ pip install gunicorn httptools uvloop
 ```
 
+Testing package
+```
+$ pip install pytest
+```
 
 Run the app from root directory:
 
