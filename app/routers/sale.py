@@ -20,7 +20,8 @@ def sales(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_
     sales = db.query(models.Sale, func.count(models.ProductSold.sale_id).label('products')).join(models.ProductSold, models.ProductSold.sale_id == models.Sale.id, isouter=True).group_by(models.Sale.id)
 
     '''Filter'''
-    sales = sales.filter(models.Sale.items.contains(search)).limit(limit).offset(offset).all()
+    # sales = sales.filter(models.Sale.items.contains(search)).limit(limit).offset(offset).all()
+    sales = sales.limit(limit).offset(offset).all()
     
     return sales
 

@@ -31,7 +31,6 @@ class TokenData(BaseModel):
 
 '''Sales'''
 class SaleBase(BaseModel):
-    items: str
     total: float
     payment_method: str
     credit: bool = False
