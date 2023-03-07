@@ -65,6 +65,7 @@ $ pip install gunicorn httptools uvloop
 Testing package
 ```
 $ pip install pytest
+$ pytest -v -s
 ```
 
 Run the app from root directory:
@@ -76,6 +77,7 @@ $ uvicorn app.main:app --reload
 ### Load API
 ```
 source venv/bin/activate
+pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
