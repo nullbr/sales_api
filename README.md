@@ -1,4 +1,5 @@
 ## Sales API
+https://bruno.buzz/docs
 
 Working with FastAPI to practice creating an API with python.
 Deployed to ubuntu server in DigitalOcean.
