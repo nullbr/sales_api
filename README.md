@@ -3,10 +3,9 @@ https://bruno.buzz/docs
 
 [![wakatime](https://wakatime.com/badge/user/9450441a-ff7b-4805-b841-897d35ef3820/project/8fd606a2-3b16-45f1-9fb0-12b25ac2eed6.svg)](https://wakatime.com/badge/user/9450441a-ff7b-4805-b841-897d35ef3820/project/8fd606a2-3b16-45f1-9fb0-12b25ac2eed6)
 
-Working with FastAPI to practice creating an API with python.
-Deployed to ubuntu server in DigitalOcean.
-Fully Dockerized application.
-Using TestClient for automated testing.
+Developed a fully fledged CRUD API in Python with the FastAPI framework. Postgresql was
+used forthe database, and testing with the TestClient package. The app was published to a
+production Ubuntu Serverin Digital Ocean, using Nginx and Certbot.
 
 ### Dependencies
 
@@ -15,7 +14,7 @@ Using TestClient for automated testing.
 - postgresql ~> 13
 
 ### Production set up
-Production machine is ubuntu 18.04 on DigitalOcean
+Production machine is ubuntu 20.04 on DigitalOcean
 domain used is bruno.buzz
 gunicorn to handle process managment
 nginx for ssl
