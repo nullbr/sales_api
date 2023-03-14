@@ -7,6 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repository
-        uses: actions/checkou@v2
+        uses: actions/checkout@v2
       - name: sey hi
         run: echo "hello"
