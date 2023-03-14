@@ -82,4 +82,4 @@ jobs:
           script: |
             cd sales-api/src
             git pull
-            sudo systemctl restart sales-api
+            echo ${{ secrets.PROD_UBUNTU_PASSWORD }} | sudo -S systemctl restart sales-api
