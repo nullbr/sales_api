@@ -8,5 +8,13 @@ jobs:
     steps:
       - name: pulling git repository
         uses: actions/checkout@v2
-      - name: sey hi
-        run: echo "hello"
+      - name: set up python
+      - uses: actions/checkout@v3
+      - name: setup python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - name: upgrade pip
+       run: pythong -m pip install --upgrade pip
+      - name: install all dependencies
+       run: pip install -r requirements.txt
