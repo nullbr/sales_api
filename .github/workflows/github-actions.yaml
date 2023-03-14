@@ -4,6 +4,17 @@ on: [push, pull_request]
 
 jobs:
   job1:
+    environment:
+      name: Testing
+    env:
+      DATABASE_HOSTNAME=${secrets.DATABASE_HOSTNAME}
+      DATABASE_PORT=${secrets.DATABASE_PORT}
+      DATABASE_USERNAME=${secrets.DATABASE_PORT}
+      DATABASE_PASSWORD=${secrets.DATABASE_PORT}
+      DATABASE_NAME=${secrets.DATABASE_PORT}
+      SECRET_KEY=${secrets.DATABASE_PORT}
+      ALGORITHM=${secrets.DATABASE_PORT}
+      ACCESS_TOKEN_EXIPE_MINUTES=${secrets.DATABASE_PORT}
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repository
