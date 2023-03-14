@@ -28,4 +28,4 @@ app.include_router(product_sold.router)
 
 @app.get("/")
 def home():
-    return { "Sales": "API" }
+    return { "Sales": "API production" }
