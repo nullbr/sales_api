@@ -1,5 +1,5 @@
 ## Sales API
-https://bruno.buzz/docs
+https://sales-api.bruno.buzz/docs
 
 [![wakatime](https://wakatime.com/badge/user/9450441a-ff7b-4805-b841-897d35ef3820/project/8fd606a2-3b16-45f1-9fb0-12b25ac2eed6.svg)](https://wakatime.com/badge/user/9450441a-ff7b-4805-b841-897d35ef3820/project/8fd606a2-3b16-45f1-9fb0-12b25ac2eed6)
 

@@ -1,0 +1,18 @@
+name: Build and Deploy Code
+
+on: [push, pull_requests]
+  # push:
+  #   branches:
+  #     - "main"
+  # pull_request:
+  #   branches:
+  #     - "main"
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pulling git repository
+        uses: actions/checkou@v2
+      - name: sey hi
+        run: echo "hello"
